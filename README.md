@@ -1,2 +1,3 @@
-# nu-sense
-SYSC5709 Project
+# Nu-sense
+
+Nu-sense is a software
