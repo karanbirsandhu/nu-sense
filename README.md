@@ -11,8 +11,8 @@ This implementation uses an algorithm discussed in this paper:
 
 Project Partners
 ---
-*Karanbir Singh Sandhu*
+*Karanbir Singh Sandhu*  Karanbirsandhu@cmail.carleton.ca
 
-*Akaljot Singh Dhillon*
+*Akaljot Singh Dhillon*  akaljotsinghdhillon@cmail.carleton.ca
 
-*Ripudaman Singh*
+*Ripudaman Singh*        ripudamansidhu@cmail.carleton.ca
