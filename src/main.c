@@ -66,5 +66,45 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-  
+    /* seperating multiple data computations in the output file*/
+    FILE *fpout = fopen(output_file_name, "a");
+    fprintf(fpout, "--------------\n");
+    fclose(fpout);
+
+    FILE *fphis = fopen(history_file_name, "a");
+    fprintf(fphis, "--------------\n");
+    fclose(fphis);
+
+    for (int i = 0 ; i < group_number; i++) {
+        for (int j = 0; j < sensor_number; j++) {
+            group_values[j]  = values[i*sensor_number + j];
+        }
+        printf("\n---------------------Time interval %d---------------------\n\n", i);
+
+        double fused = data_processing(&group_values[0]);
+        float time_val_file = (float)time_value[i];
+
+        write_data(time_val_file, fused, output_file_name);
+    }
+}
+
+/* function checks whether an attempt made to open a file is succuessful or not */
+void handle_files(char* input_file_name, double* time_value, double* values) {
+    printf("\n");
+    if (input_file_name != NULL) {
+        data_number = read_data(&time_value[0], &values[0], input_file_name);
+
+        if ( data_number == -1 ) {
+            printf("ERROR: File open failed!\n");
+            exit(0);
+        } else if ( data_number == 0 ) {
+            printf("ERROR: No. of sensors inserted and in file are different!\n");
+            exit(0);
+        } else if ( data_number > 0) {
+            printf("Read data successfully!\n");
+        }
+    } else {
+        printf("ERROR: Input file does not exist!\n");
+        exit(0);
+    }
 }
