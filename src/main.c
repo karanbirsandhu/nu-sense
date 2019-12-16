@@ -147,6 +147,12 @@ double data_processing(double* group_values) {
      
     double alpha[sensor_number];
     contri_rate_calc_kth(evec, &alpha[0]);    //function in data_process.c to get alpha
+    
+    //Step 5: Calc the contri rate of the m principal comp
+     
+    double phi[sensor_number];
+    major_contri_calc(&alpha[0], &phi[0]);    //function in data_process.c to get phi
+
 
 
     //Free memory
