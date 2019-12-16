@@ -86,3 +86,61 @@ void principal_comp_calc(gsl_matrix* T, gsl_matrix* D, gsl_matrix* Y) {
     printf("\n");
 
 }
+
+/* calculation of contribution rate of every sensor using eigen vectors */
+void contri_rate_calc_kth(gsl_vector* evec, double* alpha) {
+ 
+    double sum = 0;
+ 
+    for (int i = 0; i < sensor_number; i++) {
+        double evec_i = gsl_vector_get (evec, i);
+        sum = sum + evec_i;
+    }
+ 
+    printf("STEP 4: ALPHAS: \n");
+    for (int i = 0; i < sensor_number; i++) {
+        double evec_i = gsl_vector_get (evec, i);
+        alpha[i] = evec_i / sum;
+        printf("alpha%d=%f, ", i, alpha[i]);
+    }
+ 
+    printf("\n\n");
+}
+ 
+/* calculation of accumulated contribution rate for all sensors using previous calculations  */
+void major_contri_calc(double *alpha, double *phi) {
+ 
+    printf("STEP 5: PHIS: \n");
+    phi[0] = alpha[0];
+    printf("phi0=%f, ", phi[0]);
+    for (int i = 1; i < sensor_number; i++) {
+        phi[i] = phi[i-1]+ alpha[i];
+        printf("phi%d=%f, ", i, phi[i]);
+    }
+ 
+    printf("\n\n");
+}
+ 
+/* calculation of integrated support degree for every sensor using
+* output of step 3 and step 5 */
+void integ_supp_score_calc(double* alpha, gsl_matrix* y, gsl_vector* Z) {
+ 
+    gsl_vector* z_i = gsl_vector_alloc(sensor_number);
+    for (int i = 0; i < sensor_number; i++) {
+        gsl_vector_view y_i    = gsl_matrix_column (y, i);
+        gsl_vector_memcpy(z_i, &y_i.vector);
+        gsl_vector_scale(z_i, alpha[i]);
+ 
+        gsl_vector_add(Z, z_i);
+    }
+ 
+    printf("STEP 6: Z: \n");
+    for(int j = 0; j < sensor_number; j++){
+        double z_ij = gsl_vector_get (Z, j);
+        printf ("z%d=%g, ", j, z_ij);
+    }
+ 
+    printf("\n\n");
+ 
+    gsl_vector_free(z_i);
+ 
