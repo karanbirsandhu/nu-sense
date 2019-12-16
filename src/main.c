@@ -152,8 +152,12 @@ double data_processing(double* group_values) {
      
     double phi[sensor_number];
     major_contri_calc(&alpha[0], &phi[0]);    //function in data_process.c to get phi
+    
 
-
+    //Step 6: Compute the integrated support degree score
+     
+    gsl_vector* Z = gsl_vector_alloc(sensor_number);
+    integ_supp_score_calc(&alpha[0], y, Z);    //function in data_process.c to get z_i
 
     //Free memory
     gsl_matrix_free(D);
