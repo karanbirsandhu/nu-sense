@@ -60,6 +60,9 @@ int main(int argc, char *argv[]) {
         time_value[i] = time_value[i * sensor_number];
     }
 
+
+    sensor_validation(&values[0]);
+
     /* check whether the user input and actual file data matches */
     if (group_number != time_interval) {
         printf("ERROR: Time interval numbers, sensor numbers do not match with your input file!\n");
@@ -142,20 +145,20 @@ double data_processing(double* group_values) {
 
     gsl_matrix* y = gsl_matrix_alloc(sensor_number,sensor_number);
     principal_comp_calc(T, D, y);    //function in data_process.c to get T - Principal Components
-    
+
     //Step 4: Calc the contri rate of the kth principal comp
-     
+
     double alpha[sensor_number];
     contri_rate_calc_kth(evec, &alpha[0]);    //function in data_process.c to get alpha
-    
+
     //Step 5: Calc the contri rate of the m principal comp
-     
+
     double phi[sensor_number];
     major_contri_calc(&alpha[0], &phi[0]);    //function in data_process.c to get phi
-    
+
 
     //Step 6: Compute the integrated support degree score
-     
+
     gsl_vector* Z = gsl_vector_alloc(sensor_number);
     integ_supp_score_calc(&alpha[0], y, Z);    //function in data_process.c to get z_i
 
