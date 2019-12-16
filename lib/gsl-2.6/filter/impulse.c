@@ -89,7 +89,7 @@ Inputs: endtype    - how to handle signal end points
         xsigma     - (output) vector of estimated local standard deviations of x, size n
                      xsigma_i = sigma for i-th window: scale*MAD
         noutlier   - (output) number of outliers detected
-        ioutlier   - (output) boolean array indicating outliers identified, size n; may be NULL
+        ioutlier   - (output) int array indicating outliers identified, size n; may be NULL
                      ioutlier_i = 1 if outlier detected, 0 if not
         w          - workspace
 
@@ -205,7 +205,7 @@ Inputs: scale    - scale factor to multiply xsigma to get unbiased estimate of s
         xsigma   - (output) vector of estimated local standard deviations of x, size n
                    xsigma_i = S_n for i-th window
         noutlier - (output) number of outliers detected
-        ioutlier - (output) boolean array indicating outliers identified, size n; may be NULL
+        ioutlier - (output) int array indicating outliers identified, size n; may be NULL
                    ioutlier_i = 1 if outlier detected, 0 if not
 
 Notes:
