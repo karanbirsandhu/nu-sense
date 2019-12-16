@@ -158,6 +158,11 @@ double data_processing(double* group_values) {
      
     gsl_vector* Z = gsl_vector_alloc(sensor_number);
     integ_supp_score_calc(&alpha[0], y, Z);    //function in data_process.c to get z_i
+    
+    //Step 7-1: Eliminate incorrect data
+     
+    int sensor_correction[sensor_number];
+    elliminate_incorrect_data(Z, &sensor_correction[0]);    //function in data_process.c to elliminate incorrect datas
 
     //Free memory
     gsl_matrix_free(D);
