@@ -169,6 +169,12 @@ double data_processing(double* group_values) {
     double omega[sensor_number];
     weight_coeff_calc(Z, &sensor_correction[0], &omega[0]);     //function in data_process.c to get omega
 
+    //Step 7-3: Compute the fused output
+     
+    double fused;
+    fused = fused_output(&omega[0], &group_values[0]);    //function in data_process.c to get fused output
+    printf("FINAL STEP: \nThe fused output is %f\n", fused);
+
     //Free memory
     gsl_matrix_free(D);
     gsl_matrix_free(Temp);

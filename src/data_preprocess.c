@@ -196,3 +196,12 @@ void weight_coeff_calc(gsl_vector* Z, int* sensor_correction, double* omega) {
     }
     printf("\n\n");
 }
+
+/* generates the fused output */
+double fused_output(double* omega, double* group_values) {
+    double fused = 0;
+    for (int i = 0; i < sensor_number; i++) {
+        fused = fused + omega[i] * group_values[i];
+    }
+    return fused;
+}
