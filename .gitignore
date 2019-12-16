@@ -52,3 +52,4 @@ Module.symvers
 Mkfile.old
 dkms.conf
 src/.DS_Store
+.DS_Store
