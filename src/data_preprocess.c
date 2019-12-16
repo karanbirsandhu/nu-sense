@@ -173,3 +173,26 @@ void elliminate_incorrect_data(gsl_vector* Z, int* sensor_correction) {
  
     printf("\n");
 }
+
+/* calculation of weight coefficient in accordance with integrated
+* support degree calculated in step 6.
+* eliminated values from the previous step are left out */
+void weight_coeff_calc(gsl_vector* Z, int* sensor_correction, double* omega) {
+    double z_sum = 0;
+    double z[sensor_number];
+   
+    for (int i = 0; i < sensor_number; i++) {
+        z[i] = gsl_vector_get (Z, i);
+        z_sum = z_sum + z[i] * sensor_correction[i];
+    }
+   
+    
+    printf("Sum of z_i disregarded %f",z_sum);
+ 
+    printf("STEP 7-2: Weight coefficient Omegas:\n");
+    for (int i = 0; i < sensor_number; i++) {
+        omega[i] = (sensor_correction[i]*z[i]) / z_sum ;
+        printf("omega%d=%f, ", i, omega[i]);
+    }
+    printf("\n\n");
+}
