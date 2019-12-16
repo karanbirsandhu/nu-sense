@@ -144,3 +144,64 @@ void integ_supp_score_calc(double* alpha, gsl_matrix* y, gsl_vector* Z) {
  
     gsl_vector_free(z_i);
  
+}
+
+/* function performs elimination of incorrect data using predefined equations */
+void elliminate_incorrect_data(gsl_vector* Z, int* sensor_correction) {
+    double z_sum = 0;
+    double z[sensor_number];
+    for (int i = 0; i < sensor_number; i++) {
+        z[i] = gsl_vector_get (Z, i);
+        z_sum = z_sum + z[i];
+    }
+ 
+    printf("STEP 7-1:\nElliminate incorrect data:\n");
+    printf("Sigma of z_i=%f\n", z_sum);
+    printf("Abs of sigma/sensor_number=%f\n", fabs(z_sum/sensor_number));
+ 
+    printf("70 percent of Abs of sigma/sensor_number=%f\n", fabs(z_sum/sensor_number)*0.7);
+   
+    for (int i = 0; i < sensor_number; i++) {
+        if (fabs(z[i]) < (fabs(z_sum / sensor_number)) * 0.7) {
+            sensor_correction[i] = 0;
+            printf("z-%d does not satisfy!  fabs(z[i])=%f<%f\n", i, fabs(z[i]), (fabs(z_sum / sensor_number)) * 0.7);
+        } else {
+            sensor_correction[i] = 1;
+            printf("z-%d satisfies!  fabs(z[i])=%f>%f\n", i, fabs(z[i]), (fabs(z_sum / sensor_number)) * 0.7);
+        }
+    }
+ 
+    printf("\n");
+}
+
+/* calculation of weight coefficient in accordance with integrated
+* support degree calculated in step 6.
+* eliminated values from the previous step are left out */
+void weight_coeff_calc(gsl_vector* Z, int* sensor_correction, double* omega) {
+    double z_sum = 0;
+    double z[sensor_number];
+   
+    for (int i = 0; i < sensor_number; i++) {
+        z[i] = gsl_vector_get (Z, i);
+        z_sum = z_sum + z[i] * sensor_correction[i];
+    }
+   
+    
+    printf("Sum of z_i disregarded %f",z_sum);
+ 
+    printf("STEP 7-2: Weight coefficient Omegas:\n");
+    for (int i = 0; i < sensor_number; i++) {
+        omega[i] = (sensor_correction[i]*z[i]) / z_sum ;
+        printf("omega%d=%f, ", i, omega[i]);
+    }
+    printf("\n\n");
+}
+
+/* generates the fused output */
+double fused_output(double* omega, double* group_values) {
+    double fused = 0;
+    for (int i = 0; i < sensor_number; i++) {
+        fused = fused + omega[i] * group_values[i];
+    }
+    return fused;
+}
