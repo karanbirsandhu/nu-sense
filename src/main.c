@@ -163,6 +163,11 @@ double data_processing(double* group_values) {
      
     int sensor_correction[sensor_number];
     elliminate_incorrect_data(Z, &sensor_correction[0]);    //function in data_process.c to elliminate incorrect datas
+    
+    //Step 7-2: Compute the weight coefficient for each sensor
+     
+    double omega[sensor_number];
+    weight_coeff_calc(Z, &sensor_correction[0], &omega[0]);     //function in data_process.c to get omega
 
     //Free memory
     gsl_matrix_free(D);
