@@ -10,6 +10,7 @@
 #include "data_process.h"
 #include "sensor_history.h"
 #include "sensor_validation.h"
+#include "minunit.h"
 
 #include "externs.h"
 void handle_files(char *, double*, double*);
@@ -21,6 +22,7 @@ int temperatureMin = 30;
 int temperatureMax = 60;
 int data_number;
 int group_number;
+int tests_run = 0;
 
 /* path and names of the files used in the program
 * which include input file, output file and sensor history file */

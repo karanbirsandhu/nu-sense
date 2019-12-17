@@ -90,6 +90,7 @@ int main(int argc, char *argv[]) {
 
         write_data(time_val_file, fused, output_file_name);
     }
+    return 1;
 }
 
 /* function checks whether an attempt made to open a file is succuessful or not */
