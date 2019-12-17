@@ -3,10 +3,10 @@ C_FLAGS := -Wall -Wextra
 
 BIN		:= bin
 SRC		:= src
-INCLUDE	:= include
+INCLUDE		:= include
 LIB		:= lib
 
-LIBRARIES	:=
+LIBRARIES	:= -lgsl -lgslcblas -lm
 
 ifeq ($(OS),Windows_NT)
 EXECUTABLE	:= main.exe
