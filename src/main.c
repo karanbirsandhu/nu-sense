@@ -60,14 +60,13 @@ int main(int argc, char *argv[]) {
         time_value[i] = time_value[i * sensor_number];
     }
 
-
-    sensor_validation(&values[0]);
-
     /* check whether the user input and actual file data matches */
     if (group_number != time_interval) {
         printf("ERROR: Time interval numbers, sensor numbers do not match with your input file!\n");
         exit(0);
     }
+    
+    sensor_validation(&values[0]);
 
     /* seperating multiple data computations in the output file*/
     FILE *fpout = fopen(output_file_name, "a");
@@ -110,6 +109,24 @@ void handle_files(char* input_file_name, double* time_value, double* values) {
         printf("ERROR: Input file does not exist!\n");
         exit(0);
     }
+}
+
+/* function performs sensor validation for group values
+* @input : group Values
+*/
+void sensor_validation(double* group_values) {
+
+    int res = reading_validation(&group_values[0]);
+    if (res == 1) {
+        int check = frozen_value_check(&group_values[0]);
+
+    }
+
+    if (res == 0) {
+        printf("ERROR: Temperature values are out of range! Check history file.\n");
+        int check = frozen_value_check(&group_values[0]);
+    }
+
 }
 
 /* function performs sensor fusion algo using group Values
