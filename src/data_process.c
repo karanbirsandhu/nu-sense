@@ -1,3 +1,7 @@
+/* this file implements sensor fusion algorithm and
+* performs step1 - step 7
+*/
+
 #include "data_process.h"
 #include "externs.h"
 

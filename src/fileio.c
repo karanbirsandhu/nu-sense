@@ -1,3 +1,5 @@
+/*this manages reading and writing operations to and fromm file */
+
 #include "fileio.h"
 #include "externs.h"
 
