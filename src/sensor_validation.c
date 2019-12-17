@@ -1,3 +1,5 @@
+//this file validates sensors
+
 #include "sensor_validation.h"
 #include "externs.h"
 #include "sensor_history.h"
