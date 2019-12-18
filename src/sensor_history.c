@@ -1,5 +1,5 @@
 /*This keeps track of sensor history and add it file for
- future reference*/
+future reference*/
 #include "sensor_history.h"
 #include "externs.h"
 
@@ -9,11 +9,11 @@
 void sensor_history_add(FILE* fp, int stucked) {
 
     if ( fp != NULL) {
-        if (stucked >0)
+        if (stucked >0) 
             fprintf(fp, "Sensor%d was stucked.\n", stucked);
-    }
+    } 
 
-    printf("\nSensor history added in ../data/sensor_history/sensor_history.csv\n");
+    printf("\nSensor history was added in ../data/sensor_history/sensor_history.csv\n");
 }
 
 int sensor_history_del() {

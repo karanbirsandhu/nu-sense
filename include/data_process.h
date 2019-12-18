@@ -1,3 +1,6 @@
+#ifndef DATA_PROCESS_H
+#define DATA_PROCESS_H
+
 #include <stdio.h>
 #include <string.h>
 #include <gsl/gsl_matrix.h>
@@ -15,3 +18,5 @@ void integ_supp_score_calc(double*, gsl_matrix*, gsl_vector*);
 void elliminate_incorrect_data(gsl_vector*, int*);
 void weight_coeff_calc(gsl_vector*, int*, double*);
 double fused_output(double*, double*);
+
+#endif
