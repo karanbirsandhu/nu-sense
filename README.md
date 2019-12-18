@@ -23,7 +23,7 @@ This implementation uses an algorithm discussed in this paper:
 
 ## Folder Structure of the repository
 
-.
+```
 +--bin
 │   +--main.exe
 |
@@ -72,7 +72,7 @@ This implementation uses an algorithm discussed in this paper:
 │   LICENSE
 |   Makefile
 |   README.md
-
+```
 ## Instructions for compilation/build:
 
 1. Install MinGW and extract msys.
