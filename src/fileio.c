@@ -45,14 +45,14 @@ int read_data(double *timeinterval, double *group_values, char* input_file_name)
         }
         if (data_number % sensor_number != 0) {
             return 0;
-        }
+        } 
     }
     return data_number;
 }
 
 /* functions writes fused data values to the file using
- time values and computed fused value and name of the file */
- 
+time values and computed fused value and name of the file */
+
 void write_data(float time_val_file, double fused, char* output_file_name) {
     FILE *fp = fopen(output_file_name, "a");
     if ( fp != NULL) {
