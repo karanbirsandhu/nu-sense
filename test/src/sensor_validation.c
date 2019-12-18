@@ -1,5 +1,6 @@
-//this file validates sensors
-
+/* This file validates readings of sensors to find out which
+ * sensors are out of range, list of stuck sensors, and eliminates
+ * sensors whose values are stuck at same value.*/
 #include "sensor_validation.h"
 #include "externs.h"
 #include "sensor_history.h"

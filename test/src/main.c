@@ -1,4 +1,6 @@
-
+/* this manages and calls function to execute function
+* from beginning to end
+*/
 #include <stdio.h>
 #include <string.h>
 #include <gsl/gsl_matrix.h>
@@ -11,8 +13,8 @@
 #include "sensor_history.h"
 #include "sensor_validation.h"
 #include "minunit.h"
-
 #include "externs.h"
+
 void handle_files(char *, double*, double*);
 void sensor_validation(double*);
 double data_processing(double*);
@@ -23,12 +25,64 @@ int temperatureMax = 60;
 int data_number;
 int group_number;
 int tests_run = 0;
+int x,z;
+
+/*for testing only */
+
+int test_eigen_value;
+int test_alpha_value;
+int test_phi_value;
+int test_fused_value;
+int incorrect_sensor;
+int test_omega_value;
 
 /* path and names of the files used in the program
 * which include input file, output file and sensor history file */
 char input_file_name[255] = "../data/input_data/sample_input.csv";
 char history_file_name[255] = "../data/sensor_history/sensor_history.csv";
 char output_file_name[255] = "../data/output_data/output.csv";
+
+static char * test_eigen() {
+    mu_assert("error, eigen value deviates", test_eigen_value == 1);
+    return 0;
+}
+
+static char * test_alpha() {
+    mu_assert("error, alpha value deviates", test_alpha_value == 1);
+    return 0;
+}
+
+static char * test_phi() {
+    mu_assert("error, phi deviates", test_phi_value == 1);
+    return 0;
+}
+
+static char * test_incorrect_sensor() {
+    mu_assert("error, wrong sensor found with incorrect value", incorrect_sensor == 1);
+    return 0;
+}
+
+static char * test_omega_output() {
+    mu_assert("error, fused output deviates", test_omega_value == 1);
+    return 0;
+}
+
+static char * test_fused_output() {
+    mu_assert("error, fused output deviates", test_fused_value == 1);
+    return 0;
+}
+
+/* 0.1 is used for  testing because results in paper or calcualtion
+* can vary minutely because of precion values*/
+static char * all_tests() {
+    mu_run_test(test_eigen);
+    mu_run_test(test_alpha);
+    mu_run_test(test_phi);
+    mu_run_test(test_fused_output);
+    mu_run_test(test_omega_output);
+    mu_run_test(test_incorrect_sensor);
+    return 0;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -90,6 +144,7 @@ int main(int argc, char *argv[]) {
 
         write_data(time_val_file, fused, output_file_name);
     }
+    return 1;
 }
 
 /* function checks whether an attempt made to open a file is succuessful or not */
@@ -142,68 +197,82 @@ double data_processing(double* group_values) {
     for (int i = 0; i < sensor_number; i++) {
         printf("x%d=%f, ", i, group_values[i]);
     }
-    //Step 1: Calc the Support Degree Matrix
+    /* Step 1: Calc the Support Degree Matrix */
 
     gsl_matrix* D = gsl_matrix_alloc(sensor_number,sensor_number);
     support_degree_generator(D, &group_values[0]);    //function in data_process.c to get D - Support Degree Matrix
 
 
-
-    //Step 2: Calc eigenval & eigenvec
+    /* Step 2: Calc eigenval & eigenvec */
 
     gsl_matrix* T = gsl_matrix_alloc(sensor_number,sensor_number);
     gsl_vector* evec = gsl_vector_alloc(sensor_number);
     gsl_matrix* Temp = gsl_matrix_alloc(sensor_number,sensor_number);
 
     gsl_matrix_memcpy(Temp, D);
-    eigenvec_calc(evec, T, Temp);    //function in data_process.c to get evec - eigen group_values & T - vectors
+    test_eigen_value = eigenvec_calc(evec, T, Temp);    //function in data_process.c to get evec - eigen group_values & T - vectors
+    
 
-
-
-    //Step 3: Principal Comp Calc
+    /* Step 3: Principal Comp Calc */
 
     gsl_matrix* y = gsl_matrix_alloc(sensor_number,sensor_number);
     principal_comp_calc(T, D, y);    //function in data_process.c to get T - Principal Components
 
-    //Step 4: Calc the contri rate of the kth principal comp
+    /* Step 4: Calc the contri rate of the kth principal comp */
 
     double alpha[sensor_number];
-    contri_rate_calc_kth(evec, &alpha[0]);    //function in data_process.c to get alpha
+    test_alpha_value = contri_rate_calc_kth(evec, &alpha[0]);    //function in data_process.c to get alpha
 
-    //Step 5: Calc the contri rate of the m principal comp
+    /* Step 5: Calc the contri rate of the m principal comp */
 
     double phi[sensor_number];
-    major_contri_calc(&alpha[0], &phi[0]);    //function in data_process.c to get phi
+    test_phi_value = major_contri_calc(&alpha[0], &phi[0]);    //function in data_process.c to get phi
 
 
-    //Step 6: Compute the integrated support degree score
+    /* Step 6: Compute the integrated support degree score */
 
     gsl_vector* Z = gsl_vector_alloc(sensor_number);
     integ_supp_score_calc(&alpha[0], y, Z);    //function in data_process.c to get z_i
     
-    //Step 7-1: Eliminate incorrect data
+    /* Step 7-1: Eliminate incorrect data */
      
     int sensor_correction[sensor_number];
-    elliminate_incorrect_data(Z, &sensor_correction[0]);    //function in data_process.c to elliminate incorrect datas
+    incorrect_sensor = elliminate_incorrect_data(Z, &sensor_correction[0]);    //function in data_process.c to elliminate incorrect datas
     
-    //Step 7-2: Compute the weight coefficient for each sensor
+    /* Step 7-2: Compute the weight coefficient for each sensor */
      
     double omega[sensor_number];
-    weight_coeff_calc(Z, &sensor_correction[0], &omega[0]);     //function in data_process.c to get omega
+    test_omega_value = weight_coeff_calc(Z, &sensor_correction[0], &omega[0]);     //function in data_process.c to get omega
 
-    //Step 7-3: Compute the fused output
+    /* Step 7-3: Compute the fused output */
      
     double fused;
+    double test_fused = 53.0;
     fused = fused_output(&omega[0], &group_values[0]);    //function in data_process.c to get fused output
     printf("FINAL STEP: \nThe fused output is %f\n", fused);
+    
+    if((test_fused-fused)<0.25){
+        test_fused_value = 1;
+    }
 
-    //Free memory
+    /* Free memory */
     gsl_matrix_free(D);
     gsl_matrix_free(Temp);
     gsl_matrix_free(T);
     gsl_vector_free(evec);
     gsl_matrix_free(y);
     gsl_vector_free(Z);
+    
+    char *result = all_tests();
+        if (result != 0) {
+            printf("%s\n", result);
+        }
+        else {
+            printf("ALL TESTS PASSED\n");
+        }
+        printf("Tests run: %d\n", tests_run);
+    
+        return result != 0;
 
     return 0;
 

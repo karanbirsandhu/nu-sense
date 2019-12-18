@@ -1,5 +1,10 @@
+/* this file implements sensor fusion algorithm and
+* performs step1 - step 7
+*/
+
 #include "data_process.h"
 #include "externs.h"
+int test;
 
 /* function creates n*n support degree matrix using gsl matrix and group values
 * first step of the algorithm */
@@ -30,7 +35,7 @@ void support_degree_generator(gsl_matrix* D, double * group_values) {
 
 /* generate eigen values and corresponding eigen vectors using the support degree Matrix
 * second step of the algorithm */
-void eigenvec_calc(gsl_vector* evec, gsl_matrix* T, gsl_matrix* D) {
+int eigenvec_calc(gsl_vector* evec, gsl_matrix* T, gsl_matrix* D) {
 
     gsl_eigen_symmv_workspace *w = gsl_eigen_symmv_alloc (sensor_number);
 
@@ -40,9 +45,14 @@ void eigenvec_calc(gsl_vector* evec, gsl_matrix* T, gsl_matrix* D) {
     gsl_eigen_symmv_sort (evec, T, GSL_EIGEN_SORT_ABS_DESC);
 
     printf("STEP 2: \nEigenValues: \n");
+    double temp[8]= {5.412,1.10823,0.989088,0.188437,0.144576,0.093138,0.0645289,0};
     for(int i = 0; i < sensor_number; i++){
         double evec_i = gsl_vector_get (evec, i);
         printf ("%g, ", evec_i);
+        if ((evec_i-temp[i])<0.1){
+            test = 1;
+        }
+        
     }
 
     printf("\n\n");
@@ -58,6 +68,7 @@ void eigenvec_calc(gsl_vector* evec, gsl_matrix* T, gsl_matrix* D) {
         printf("\n");
     }
     printf("\n");
+    return test;
 }
 
 /* function calculates principal component using eigen values and eigen vectors */
@@ -88,7 +99,7 @@ void principal_comp_calc(gsl_matrix* T, gsl_matrix* D, gsl_matrix* Y) {
 }
 
 /* calculation of contribution rate of every sensor using eigen vectors */
-void contri_rate_calc_kth(gsl_vector* evec, double* alpha) {
+int contri_rate_calc_kth(gsl_vector* evec, double* alpha) {
  
     double sum = 0;
  
@@ -98,27 +109,37 @@ void contri_rate_calc_kth(gsl_vector* evec, double* alpha) {
     }
  
     printf("STEP 4: ALPHAS: \n");
+    double temp[8] = {.6765,.1385,.1236,.236,.0181,.0116,0.0081,0};
     for (int i = 0; i < sensor_number; i++) {
         double evec_i = gsl_vector_get (evec, i);
         alpha[i] = evec_i / sum;
         printf("alpha%d=%f, ", i, alpha[i]);
+        if ((alpha[i]-temp[8])<0.1){
+            test = 1;
+        }
     }
  
     printf("\n\n");
+    return test;
 }
  
 /* calculation of accumulated contribution rate for all sensors using previous calculations  */
-void major_contri_calc(double *alpha, double *phi) {
- 
+int major_contri_calc(double *alpha, double *phi) {
+    
+    double temp[8] = {0.6765,0.8150, 0.9387, 0.9622,0.9803,0.9919,1.00,1.00};
     printf("STEP 5: PHIS: \n");
     phi[0] = alpha[0];
     printf("phi0=%f, ", phi[0]);
     for (int i = 1; i < sensor_number; i++) {
         phi[i] = phi[i-1]+ alpha[i];
         printf("phi%d=%f, ", i, phi[i]);
+        if ((phi[i]-temp[i])<0.1){
+            
+        }
     }
  
     printf("\n\n");
+    return test;
 }
  
 /* calculation of integrated support degree for every sensor using
@@ -147,13 +168,17 @@ void integ_supp_score_calc(double* alpha, gsl_matrix* y, gsl_vector* Z) {
 }
 
 /* function performs elimination of incorrect data using predefined equations */
-void elliminate_incorrect_data(gsl_vector* Z, int* sensor_correction) {
+int elliminate_incorrect_data(gsl_vector* Z, int* sensor_correction) {
     double z_sum = 0;
+    
+    /* expected inccorect sensor data */
+    double incorrect_sensor_data = 5;
     double z[sensor_number];
     for (int i = 0; i < sensor_number; i++) {
         z[i] = gsl_vector_get (Z, i);
         z_sum = z_sum + z[i];
     }
+
  
     printf("STEP 7-1:\nElliminate incorrect data:\n");
     printf("Sigma of z_i=%f\n", z_sum);
@@ -165,6 +190,9 @@ void elliminate_incorrect_data(gsl_vector* Z, int* sensor_correction) {
         if (fabs(z[i]) < (fabs(z_sum / sensor_number)) * 0.7) {
             sensor_correction[i] = 0;
             printf("z-%d does not satisfy!  fabs(z[i])=%f<%f\n", i, fabs(z[i]), (fabs(z_sum / sensor_number)) * 0.7);
+            if (z[i]==incorrect_sensor_data){
+                test = 1;
+            }
         } else {
             sensor_correction[i] = 1;
             printf("z-%d satisfies!  fabs(z[i])=%f>%f\n", i, fabs(z[i]), (fabs(z_sum / sensor_number)) * 0.7);
@@ -172,15 +200,17 @@ void elliminate_incorrect_data(gsl_vector* Z, int* sensor_correction) {
     }
  
     printf("\n");
+    return test;
 }
 
 /* calculation of weight coefficient in accordance with integrated
 * support degree calculated in step 6.
 * eliminated values from the previous step are left out */
-void weight_coeff_calc(gsl_vector* Z, int* sensor_correction, double* omega) {
+int weight_coeff_calc(gsl_vector* Z, int* sensor_correction, double* omega) {
     double z_sum = 0;
     double z[sensor_number];
-   
+    double temp[8] = {0.146162,0.134670,0.142832,0.146162,0.146180,0.136572,0.000000,0.147422};
+
     for (int i = 0; i < sensor_number; i++) {
         z[i] = gsl_vector_get (Z, i);
         z_sum = z_sum + z[i] * sensor_correction[i];
@@ -193,8 +223,12 @@ void weight_coeff_calc(gsl_vector* Z, int* sensor_correction, double* omega) {
     for (int i = 0; i < sensor_number; i++) {
         omega[i] = (sensor_correction[i]*z[i]) / z_sum ;
         printf("omega%d=%f, ", i, omega[i]);
+        if ((omega[i]-temp[i])<0.1){
+            test = 1;
+        }
     }
     printf("\n\n");
+    return test;
 }
 
 /* generates the fused output */
