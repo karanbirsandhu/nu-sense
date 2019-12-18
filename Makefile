@@ -6,7 +6,7 @@ SRC		:= src
 INCLUDE		:= include
 LIB		:= lib
 
-LIBRARIES	:= -lgsl -lgslcblas -lm
+LIBRARIES	:= -I/usr/local/include -L/usr/local/lib -lgsl -lgslcblas -lm
 
 ifeq ($(OS),Windows_NT)
 EXECUTABLE	:= main.exe

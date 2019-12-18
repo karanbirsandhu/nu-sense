@@ -1,4 +1,6 @@
-
+/* this manages and calls function to execute function
+* from beginning to end
+*/
 #include <stdio.h>
 #include <string.h>
 #include <gsl/gsl_matrix.h>
@@ -60,14 +62,13 @@ int main(int argc, char *argv[]) {
         time_value[i] = time_value[i * sensor_number];
     }
 
-
-    sensor_validation(&values[0]);
-
     /* check whether the user input and actual file data matches */
     if (group_number != time_interval) {
         printf("ERROR: Time interval numbers, sensor numbers do not match with your input file!\n");
         exit(0);
     }
+    
+    sensor_validation(&values[0]);
 
     /* seperating multiple data computations in the output file*/
     FILE *fpout = fopen(output_file_name, "a");
@@ -89,6 +90,7 @@ int main(int argc, char *argv[]) {
 
         write_data(time_val_file, fused, output_file_name);
     }
+    return 1;
 }
 
 /* function checks whether an attempt made to open a file is succuessful or not */
@@ -112,6 +114,24 @@ void handle_files(char* input_file_name, double* time_value, double* values) {
     }
 }
 
+/* function performs sensor validation for group values
+* @input : group Values
+*/
+void sensor_validation(double* group_values) {
+
+    int res = reading_validation(&group_values[0]);
+    if (res == 1) {
+        int check = frozen_value_check(&group_values[0]);
+
+    }
+
+    if (res == 0) {
+        printf("ERROR: Temperature values are out of range! Check history file.\n");
+        int check = frozen_value_check(&group_values[0]);
+    }
+
+}
+
 /* function performs sensor fusion algo using group Values
 * @input : group Values
 * @output : fused result
@@ -123,14 +143,14 @@ double data_processing(double* group_values) {
     for (int i = 0; i < sensor_number; i++) {
         printf("x%d=%f, ", i, group_values[i]);
     }
-    //Step 1: Calc the Support Degree Matrix
+    /* Step 1: Calc the Support Degree Matrix */
 
     gsl_matrix* D = gsl_matrix_alloc(sensor_number,sensor_number);
     support_degree_generator(D, &group_values[0]);    //function in data_process.c to get D - Support Degree Matrix
 
 
 
-    //Step 2: Calc eigenval & eigenvec
+    /* Step 2: Calc eigenval & eigenvec */
 
     gsl_matrix* T = gsl_matrix_alloc(sensor_number,sensor_number);
     gsl_vector* evec = gsl_vector_alloc(sensor_number);
@@ -141,44 +161,44 @@ double data_processing(double* group_values) {
 
 
 
-    //Step 3: Principal Comp Calc
+    /* Step 3: Principal Comp Calc */
 
     gsl_matrix* y = gsl_matrix_alloc(sensor_number,sensor_number);
     principal_comp_calc(T, D, y);    //function in data_process.c to get T - Principal Components
 
-    //Step 4: Calc the contri rate of the kth principal comp
+    /* Step 4: Calc the contri rate of the kth principal comp */
 
     double alpha[sensor_number];
     contri_rate_calc_kth(evec, &alpha[0]);    //function in data_process.c to get alpha
 
-    //Step 5: Calc the contri rate of the m principal comp
+    /* Step 5: Calc the contri rate of the m principal comp */
 
     double phi[sensor_number];
     major_contri_calc(&alpha[0], &phi[0]);    //function in data_process.c to get phi
 
 
-    //Step 6: Compute the integrated support degree score
+    /* Step 6: Compute the integrated support degree score */
 
     gsl_vector* Z = gsl_vector_alloc(sensor_number);
     integ_supp_score_calc(&alpha[0], y, Z);    //function in data_process.c to get z_i
     
-    //Step 7-1: Eliminate incorrect data
+    /* Step 7-1: Eliminate incorrect data */
      
     int sensor_correction[sensor_number];
     elliminate_incorrect_data(Z, &sensor_correction[0]);    //function in data_process.c to elliminate incorrect datas
     
-    //Step 7-2: Compute the weight coefficient for each sensor
+    /* Step 7-2: Compute the weight coefficient for each sensor */
      
     double omega[sensor_number];
     weight_coeff_calc(Z, &sensor_correction[0], &omega[0]);     //function in data_process.c to get omega
 
-    //Step 7-3: Compute the fused output
+    /* Step 7-3: Compute the fused output */
      
     double fused;
     fused = fused_output(&omega[0], &group_values[0]);    //function in data_process.c to get fused output
     printf("FINAL STEP: \nThe fused output is %f\n", fused);
 
-    //Free memory
+    /* Free memory */
     gsl_matrix_free(D);
     gsl_matrix_free(Temp);
     gsl_matrix_free(T);
