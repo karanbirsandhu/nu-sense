@@ -23,51 +23,50 @@ This implementation uses an algorithm discussed in this paper:
 
 ## Folder Structure of the repository
 
-│
+.
++--bin
+│   +--main.exe
 |
-├───bin
-│   ├───main.exe
-|
-├───data
-│   ├───input_data
++--data
+│   +--input_data
 │   │       sample_input.csv
 │   │
-│   └───output_data
+│   +--output_data
 │   │       output.csv
 |   |
-│   └───sensor_history
+│   +--sensor_history
 │           sensor_history.csv
 │
-├───doc
++--doc
 │       Flow_Diagram.png
 |       NU-Software Design Document.pdf
 │       architecture.png
 │       developer_manual.pdf
 │       user_manual.pdf
 │
-├───include
++--include
 │       data_process.h
 │       externs.h
 |       fileio.h
 |       sensor_history.h
 |       sensor_validation.h
 │
-├───lib
++--lib
 │       gsl-2.6
 │
-├───src
++--src
 │       data_process.c
 │       main.c
 |       fileio.c
 |       sensor_history.c
 |       sensor_validation.c
 │
-└───test
-|   ├───bin
-│   ├───data
-|   ├───include
-|   ├───lib  
-│   └───src
++--test
+|   +--bin
+│   +--data
+|   +--include
+|   +--lib  
+│   +--src
 |  
 |   .gitignore                 
 │   LICENSE
